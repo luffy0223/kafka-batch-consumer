@@ -1,0 +1,29 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:9080
+    producer:
+      # 重试次数
+      retries: 3
+      # 批量发送的消息数量
+      batch-size: 16384
+      # 32MB的批处理缓冲区
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      # 默认消费者组
+      group-id: 0
+      # 最早未被消费的offset
+      auto-offset-reset: earliest
+      # 批量一次最大拉取数据量
+      max-poll-records: 100
+      # 自动提交时间间隔， 这种直接拉到数据就提交 容易丢数据
+      auto-commit-interval: 2000
+      # 禁止自动提交
+      enable-auto-commit: false
+      # 批量拉取间隔，要大于批量拉取数据的处理时间，时间间隔太小会有重复消费
+      max.poll.interval.ms: 5000
+topicName:
+  topic2: my-topic
+  topic5: my-topic
+ack-mode: MANUAL_IMMEDIATE
