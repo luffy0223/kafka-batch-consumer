@@ -6,6 +6,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,7 +33,7 @@ public class RecordListService {
     }
 
 
-    private List recordList;
+    private List recordList = new ArrayList();
 
     public synchronized List getRecordList() {
         return recordList;
@@ -49,11 +51,18 @@ public class RecordListService {
         //移除removerecords
         this.recordList.removeIf(s->removeRecords.contains(s));
         containerService.startListen("0");
+        notifyAll();
     }
 
-    public synchronized void refresh(){
+    public synchronized void clear() {
         //定时清除部分数据
-        this.recordList.remove(0);
+        Iterator iterator = this.recordList.iterator();
+        while (iterator.hasNext()) {
+            Object cur = iterator.next();
+            iterator.remove();
+        }
+        containerService.startListen("0");
+        notifyAll();
     }
 
 }
