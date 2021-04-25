@@ -35,11 +35,11 @@ public class RecordListService {
 
     private List recordList = new ArrayList();
 
-    public synchronized List getRecordList() {
+    public  List getRecordList() {
         return recordList;
     }
 
-    public synchronized void appendList(List<ConsumerRecord<String, String>> records){
+    public  void appendList(List<ConsumerRecord<String, String>> records){
         this.recordList.addAll(records);
         if (recordList.size()> MyConstants.List_Limit){
             containerService.pauseListen("0");
@@ -47,14 +47,14 @@ public class RecordListService {
         notifyAll();
     }
 
-    public synchronized void removeElement(List<String> removeRecords){
+    public  void removeElement(List<String> removeRecords){
         //移除removerecords
         this.recordList.removeIf(s->removeRecords.contains(s));
         containerService.startListen("0");
         notifyAll();
     }
 
-    public synchronized void clear() {
+    public  void clear() {
         //定时清除部分数据
         Iterator iterator = this.recordList.iterator();
         while (iterator.hasNext()) {

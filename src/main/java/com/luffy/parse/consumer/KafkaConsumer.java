@@ -31,8 +31,9 @@ public class KafkaConsumer {
     public void listener(List<ConsumerRecord<String, String>> records, Acknowledgment ack) {
         System.out.println(LocalDateTime.now());
         System.out.println(records.size() + "条数被消费");
-        recordListService.appendList(records);
-
+        synchronized (recordListService) {
+            recordListService.appendList(records);
+        }
         try {
             ack.acknowledge();
         } catch (Exception ex) {

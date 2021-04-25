@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author luffy
@@ -26,19 +27,21 @@ public class ParseService {
 
     private HashMap<String,String> dataMap = new HashMap<>(8192);
 
-    @Scheduled(fixedDelay = 10*1*1000L)
+    @Scheduled(fixedDelay = 10*60*1000L)
     public void parse(){
-        List<ConsumerRecord<String, String>> list = recordListService.getRecordList();
-        list.stream().map(ConsumerRecord::value)
-                .map(u -> packetConverter.convert(u))
-                .filter(p -> !dataMap.containsKey(p))
-                .forEach(
-                p -> {
-                    dataMap.put(p.getFiveElementNode(), p.getPacketData().toString());
-                }
+        synchronized (recordListService) {
+            List<ConsumerRecord<String, String>> list = recordListService.getRecordList();
+            list.stream().map(ConsumerRecord::value)
+                    .map(u -> packetConverter.convert(u))
+                    .filter(p -> !dataMap.containsKey(p))
+                    .forEach(
+                            p -> {
+                                dataMap.put(p.getFiveElementNode(), p.getPacketData().toString());
+                            }
 
-        );
-        recordListService.clear();
+                    );
+            recordListService.clear();
+        }
         /*
         解析packetdata，生成fiveNode 每次取5000个元素
         list->map<String,fiveNodeLinkedList>
